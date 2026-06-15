@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is off -->
+    <style name="AppTheme" parent="@style/Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here -->
+        <!--        <item name="android:windowNoTitle">true</item> &lt;!&ndash; Hide the title bar &ndash;&gt;-->
+        <!--        <item name="android:windowActionBar">false</item> &lt;!&ndash; Hide the ActionBar &ndash;&gt;-->
+        <!--        <item name="android:windowContentOverlay">@null</item>-->
+        <!--        <item name="android:windowFullscreen">true</item>-->
+        <!--        <item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
+        <!--        <item name="android:statusBarColor">@color/white</item>-->
+        <!--        -->
+        <!--        <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">-->
+        <!-- Show a splash screen on the activity. Automatically removed when
+             the Flutter engine draws its first frame -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <!--        </style>-->
+
+
+        <!-- Add other style attributes if needed -->
+    </style>
+
+    <!-- Theme applied to the Android Window as soon as the process has started.
+         This theme determines the color of the Android Window while your
+         Flutter UI initializes, as well as behind your Flutter UI while its
+         running.
+
+         This Theme is only used starting with V2 of Flutter's Android embedding. -->
+    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+    <style name="TextColor" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/light_gray</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="ErrorButtonAppearance" >
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:textColor">@color/error_color</item>
+    </style>
+    <style name="ButtonAppearance" >
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:textColor">@color/zebra_blue</item>
+    </style>
+    <style name="SpinnerTheme" parent="Widget.AppCompat.Spinner.DropDown">
+        <item name="android:checkMark">@color/bright_foreground_material_dark</item>
+    </style>
+</resources>
