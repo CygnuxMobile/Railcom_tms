@@ -191,11 +191,23 @@ class PodUploadController extends GetxController {
         podList[index].loading = true;
         podList.refresh();
 
-        await podSubmit(
-          index: index,
-          podImage: podList[index].podImagePaths[0],
-          podImageBack: podList[index].podImagePaths[1],
-        );
+        final images = podList[index].podImagePaths;
+        if (images.isNotEmpty) {
+          String frontImage = images.firstWhere(
+            (p) => p.contains('@_F@'),
+            orElse: () => images[0],
+          );
+          String backImage = images.firstWhere(
+            (p) => p.contains('@_B@'),
+            orElse: () => images.length > 1 ? images[1] : images[0],
+          );
+
+          await podSubmit(
+            index: index,
+            podImage: frontImage,
+            podImageBack: backImage,
+          );
+        }
       } else {
         print("⚠️ Docket not found in podList for dockNo: ${docket.dockNo}");
       }

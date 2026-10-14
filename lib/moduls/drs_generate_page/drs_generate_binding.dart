@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
-import 'package:tms_newui/moduls/drs_generate_page/drs_generate_controller.dart';
+import 'drs_generate_controller.dart';
 
-class DrsGenerateBinding extends Bindings {
+class DRSGenerateBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => DrsGenerateController());
+    Get.lazyPut<DRSGenerateController>(
+      () => DRSGenerateController(),
+    );
   }
 }

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 EwayBillResponse ewayBillResponseFromJson(String str) => EwayBillResponse.fromJson(json.decode(str));
 
-
 class EwayBillResponse {
   final int statusCode;
   final int status;
@@ -21,14 +20,15 @@ class EwayBillResponse {
   });
 
   factory EwayBillResponse.fromJson(Map<String, dynamic> json) => EwayBillResponse(
-    statusCode: json["statusCode"],
-    status: json["status"],
-    data: Data.fromJson(json["data"]),
+    statusCode: int.tryParse(json["statusCode"]?.toString() ?? '0') ?? 0,
+    status: int.tryParse(json["status"]?.toString() ?? '0') ?? 0,
+    data: json["data"] != null && json["data"] is Map<String, dynamic>
+        ? Data.fromJson(json["data"])
+        : Data.empty(),
     errors: json["errors"],
     metaData: json["metaData"],
-    message: json["message"],
+    message: json["message"]?.toString() ?? '',
   );
-
 }
 
 class Data {
@@ -90,33 +90,63 @@ class Data {
     required this.area,
   });
 
+  factory Data.empty() => Data(
+    status: 0,
+    message: '',
+    partyCode: '',
+    partyName: '',
+    invno: '',
+    invdt: '',
+    decval: 0.0,
+    eWayBillExpiredDate: '',
+    eWayInvoicevalue: 0.0,
+    eWayBillInvoiceDate: '',
+    fromCity: '',
+    toCity: '',
+    paybas: '',
+    ewaybillNo: '',
+    pincode: 0,
+    odaCategory: '',
+    destcd: '',
+    transMode: '',
+    volYn: '',
+    csgncd: '',
+    csgnm: '',
+    csgnAdd: '',
+    csgecd: '',
+    csgenm: '',
+    csgeAdd: '',
+    toPincode: 0,
+    area: null,
+  );
+
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    status: json["status"] ?? 0,
-    message: json["message"] ?? '',
-    partyCode: json["partyCode"] ?? '',
-    partyName: json["partyName"] ?? '',
-    invno: json["invno"] ?? '',
-    invdt: json["invdt"] ?? '',
-    decval: (json["decval"] ?? 0).toDouble(),
-    eWayBillExpiredDate: json["eWayBillExpiredDate"] ?? '',
-    eWayInvoicevalue: (json["eWayInvoicevalue"] ?? 0).toDouble(),
-    eWayBillInvoiceDate: json["eWayBillInvoiceDate"] ?? '',
-    fromCity: json["fromCity"] ?? '',
-    toCity: json["toCity"] ?? '',
-    paybas: json["paybas"] ?? '',
-    ewaybillNo: json["ewaybillNo"] ?? '',
-    pincode: json["pincode"] ?? 0,
-    odaCategory: json["odaCategory"] ?? '',
-    destcd: json["destcd"] ?? '',
-    transMode: json["transMode"] ?? '',
-    volYn: json["vol_yn"] ?? '',
-    csgncd: json["csgncd"] ?? '',
-    csgnm: json["csgnm"] ?? '',
-    csgnAdd: json["csgnAdd"] ?? '',
-    csgecd: json["csgecd"] ?? '',
-    csgenm: json["csgenm"] ?? '',
-    csgeAdd: json["csgeAdd"] ?? '',
-    toPincode: json["toPincode"] ?? 0,
+    status: int.tryParse(json["status"]?.toString() ?? '0') ?? 0,
+    message: json["message"]?.toString() ?? '',
+    partyCode: json["partyCode"]?.toString() ?? '',
+    partyName: json["partyName"]?.toString() ?? '',
+    invno: json["invno"]?.toString() ?? '',
+    invdt: json["invdt"]?.toString() ?? '',
+    decval: double.tryParse(json["decval"]?.toString() ?? '0') ?? 0.0,
+    eWayBillExpiredDate: json["eWayBillExpiredDate"]?.toString() ?? '',
+    eWayInvoicevalue: double.tryParse(json["eWayInvoicevalue"]?.toString() ?? '0') ?? 0.0,
+    eWayBillInvoiceDate: json["eWayBillInvoiceDate"]?.toString() ?? '',
+    fromCity: json["fromCity"]?.toString() ?? '',
+    toCity: json["toCity"]?.toString() ?? '',
+    paybas: json["paybas"]?.toString() ?? '',
+    ewaybillNo: json["ewaybillNo"]?.toString() ?? '',
+    pincode: int.tryParse(json["pincode"]?.toString() ?? '0') ?? 0,
+    odaCategory: json["odaCategory"]?.toString() ?? '',
+    destcd: json["destcd"]?.toString() ?? '',
+    transMode: json["transMode"]?.toString() ?? '',
+    volYn: json["vol_yn"]?.toString() ?? '',
+    csgncd: json["csgncd"]?.toString() ?? '',
+    csgnm: json["csgnm"]?.toString() ?? '',
+    csgnAdd: json["csgnAdd"]?.toString() ?? '',
+    csgecd: json["csgecd"]?.toString() ?? '',
+    csgenm: json["csgenm"]?.toString() ?? '',
+    csgeAdd: json["csgeAdd"]?.toString() ?? '',
+    toPincode: int.tryParse(json["toPincode"]?.toString() ?? '0') ?? 0,
     area: json["area"],
   );
 }

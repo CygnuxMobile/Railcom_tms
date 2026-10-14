@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:tms_newui/moduls/pod_page/pod_controller.dart';
 import 'package:tms_newui/moduls/pod_page/widget/image_bottom_sheet.dart';
 import 'package:tms_newui/moduls/pod_page/widget/pod_upload_filter.dart';
@@ -305,8 +304,6 @@ class _PodUploadScreenState extends State<PodUploadScreen> {
                                 onPressed: pod.loading
                                     ? null
                                     : () async {
-                                        await Permission.storage.request();
-                                        await Permission.manageExternalStorage.request();
                                         final isOnline = ConnectionService().hasConnection;
 
                                         if (pod.buttonName == "Edit Pod") {
@@ -320,12 +317,23 @@ class _PodUploadScreenState extends State<PodUploadScreen> {
                                             return;
                                           }
 
+                                          String frontImage = pod.podImagePaths.firstWhere(
+                                            (p) => p.contains('@_F@'),
+                                            orElse: () => pod.podImagePaths[0],
+                                          );
+                                          String backImage = pod.podImagePaths.firstWhere(
+                                            (p) => p.contains('@_B@'),
+                                            orElse: () => pod.podImagePaths.length > 1
+                                                ? pod.podImagePaths[1]
+                                                : pod.podImagePaths[0],
+                                          );
+
                                           podUploadController.submitHandel(
                                             index: index,
                                             isOnline: isOnline,
                                             docketNo: pod.dockNo,
-                                            podImage: pod.podImagePaths[0],
-                                            podImageBack: pod.podImagePaths[1],
+                                            podImage: frontImage,
+                                            podImageBack: backImage,
                                           );
                                         } else {
                                           Get.snackbar(

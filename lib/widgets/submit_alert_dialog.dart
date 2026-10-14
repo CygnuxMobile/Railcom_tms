@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:tms_newui/widgets/tms_button.dart';
 import 'package:tms_newui/widgets/tms_normaltext.dart';
 
@@ -82,6 +81,8 @@ TmsAlertDialog({
   String title = '',
   String description = '',
   required VoidCallback onPressed,
+  VoidCallback? partBTap,
+  bool isPartBShow = false,
   required Size buttonSize,
   required String onTapText,
   required bool isShowImage,
@@ -97,42 +98,55 @@ TmsAlertDialog({
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              isShowImage ?
-              Image(
-                image: AssetImage(
-                    "assets/images/dashboardimages/successdialog.png"),
-                height: 60,
-              ) : SizedBox(),
+              isShowImage
+                  ? Image(
+                      image: const AssetImage(
+                          "assets/images/dashboardimages/successdialog.png"),
+                      height: 60,
+                    )
+                  : const SizedBox(),
               if (title.isNotEmpty) ...{
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 TmsText(
                   text: title,
                   fontSize: 15,
-                  color: Color(0xff585858),
+                  color: const Color(0xff585858),
                   fontWeight: FontWeight.bold,
                 ),
               },
               if (description.isNotEmpty) ...{
-                SizedBox(
+                const SizedBox(
                   height: 05,
                 ),
                 TmsText(
                   text: description,
                   fontSize: 12,
-                  color: Color(0xff8D8D8F),
+                  color: const Color(0xff8D8D8F),
                   fontWeight: FontWeight.w400,
                 ),
               },
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-              Button(
-                text: onTapText,
-                textSize: 13,
-                size: buttonSize,
-                onPressed: onPressed
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Button(
+                      text: onTapText,
+                      textSize: 13,
+                      size: buttonSize,
+                      onPressed: onPressed),
+                  if (isPartBShow) ...{
+                    const SizedBox(width: 10),
+                    Button(
+                        text: "Part B",
+                        textSize: 13,
+                        size: buttonSize,
+                        onPressed: partBTap ?? () {}),
+                  },
+                ],
               ),
             ],
           ),

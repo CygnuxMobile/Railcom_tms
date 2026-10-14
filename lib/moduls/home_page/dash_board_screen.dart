@@ -253,19 +253,20 @@ class _DashBordScreenState extends State<DashBordScreen> {
                               }
                             },
                           )
-                        else if (module == 'drs')
+                        else if (module == 'prsGenerate' || module == 'prs_generate' || module == 'prs' || module == 'pr' || module == 'par' || module == 'prq')
+                          DashBoardContainer(
+                            text: 'PRS Generate',
+                            image: 'assets/images/dashboardimages/prs_generate.png',
+                            ontap: () {
+                              Get.toNamed(AppRoutes.prsGenerateScreen);
+                            },
+                          )
+                        else if (module == 'drsGenerate' || module == 'drs_generate')
                           DashBoardContainer(
                             text: 'DRS Generate',
-                            image: 'assets/images/dashboardimages/Delivery Boy.png',
+                            image: 'assets/images/dashboardimages/drs_generate.png',
                             ontap: () {
-                              String? baseLocation = Pref().getBaseLocation();
-                              if (baseLocation.isEmpty) {
-                                dashBordMenuEnum = DashBordMenuEnum.drsList;
-                                TmsToast.msg('Please add Location');
-                              } else {
-                                dashBordMenuEnum = DashBordMenuEnum.drsList;
-                                DrsBottomSheetArrival(context);
-                              }
+                              Get.toNamed(AppRoutes.drsGenerateScreen);
                             },
                           )
                         else if (module == 'pod')

@@ -13,68 +13,69 @@ import 'package:objectbox/internal.dart'
     as obx_int; // generated code can access "internal" functionality
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
-import 'package:tms_newui/utils/podDb/poddb_handler.dart';
 
-export 'package:objectbox/objectbox.dart';
+import 'utils/podDb/poddb_handler.dart';
+
+export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
 final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
-    id: const obx_int.IdUid(1, 3428807048063053727),
+    id: const obx_int.IdUid(1, 4816332047713473714),
     name: 'Docket',
-    lastPropertyId: const obx_int.IdUid(9, 6538002801567773001),
+    lastPropertyId: const obx_int.IdUid(9, 4876727491873978194),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(1, 4257787385389240912),
+        id: const obx_int.IdUid(1, 3154765454186511546),
         name: 'id',
         type: 6,
         flags: 1,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(2, 1650999329378668320),
+        id: const obx_int.IdUid(2, 8687067325854175526),
         name: 'dockNo',
         type: 9,
         flags: 2080,
-        indexId: const obx_int.IdUid(1, 2890342879237524881),
+        indexId: const obx_int.IdUid(1, 977957889233007834),
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(3, 1197802415781922596),
+        id: const obx_int.IdUid(3, 5379584318652842847),
         name: 'dockDt',
         type: 9,
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(4, 867044325694114951),
+        id: const obx_int.IdUid(4, 1146584745105560759),
         name: 'tripSheetNo',
         type: 9,
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(5, 8658208159730185547),
+        id: const obx_int.IdUid(5, 4486108250284199690),
         name: 'podImagePaths',
         type: 30,
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(6, 4685961544342436417),
+        id: const obx_int.IdUid(6, 2930228965469012109),
         name: 'status',
         type: 9,
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(7, 3030893445808452082),
+        id: const obx_int.IdUid(7, 300039987415804391),
         name: 'buttonName',
         type: 9,
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(8, 8295068708360376669),
+        id: const obx_int.IdUid(8, 1498587106572032092),
         name: 'apiStatusIndex',
         type: 6,
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(9, 6538002801567773001),
+        id: const obx_int.IdUid(9, 4876727491873978194),
         name: 'loading',
         type: 1,
         flags: 0,
@@ -84,19 +85,19 @@ final _entities = <obx_int.ModelEntity>[
     backlinks: <obx_int.ModelBacklink>[],
   ),
   obx_int.ModelEntity(
-    id: const obx_int.IdUid(2, 6087636667163249931),
+    id: const obx_int.IdUid(2, 224793709185658567),
     name: 'StringEntity',
-    lastPropertyId: const obx_int.IdUid(2, 3648032499025554649),
+    lastPropertyId: const obx_int.IdUid(2, 819344961123759973),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(1, 2261828453836316281),
+        id: const obx_int.IdUid(1, 3764884200185039093),
         name: 'id',
         type: 6,
         flags: 1,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(2, 3648032499025554649),
+        id: const obx_int.IdUid(2, 819344961123759973),
         name: 'value',
         type: 9,
         flags: 0,
@@ -144,9 +145,14 @@ Future<obx.Store> openStore({
 /// [obx.Store.new].
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
+    // If this version is not found, it means that this file was generated
+    // with an older version of the ObjectBox Dart generator.
+    // Please regenerate this file with the current generator version.
+    // Typically, this is done with `dart run build_runner build`.
+    generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(2, 6087636667163249931),
-    lastIndexId: const obx_int.IdUid(1, 2890342879237524881),
+    lastEntityId: const obx_int.IdUid(2, 224793709185658567),
+    lastIndexId: const obx_int.IdUid(1, 977957889233007834),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],

@@ -1,6 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class Dropdown extends StatelessWidget {
   Dropdown(
@@ -15,11 +16,14 @@ class Dropdown extends StatelessWidget {
       required this.isSize,
       required this.enabled,
       this.image,
+      this.icon,
       this.height,
-      this.boxDecoration});
+      this.boxDecoration,
+      this.isLoading});
 
   final RxString text;
   final RxString? image;
+  final Widget? icon;
   final RxString? selectedItem;
   final void Function(String?)? onChanged;
   final FormFieldValidator<String>? validator;
@@ -29,7 +33,8 @@ class Dropdown extends StatelessWidget {
   final bool isSize;
   final RxBool enabled;
   final RxDouble? height;
-  BoxDecoration? boxDecoration;
+  final BoxDecoration? boxDecoration;
+  final RxBool? isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -49,18 +54,38 @@ class Dropdown extends StatelessWidget {
             padding: const EdgeInsets.only(left: 12),
             child: Row(
               children: [
-                Image(
-                  image: AssetImage(image == null
-                      ? 'assets/images/dashboardimages/In Transit.png'
-                      : image!.value),
-                  height: height == null ? 0 : height!.value,
-                ),
+                if (icon != null)
+                  icon!
+                else if (image != null)
+                  Image(
+                    image: AssetImage(image!.value),
+                    height: height == null ? 0 : height!.value,
+                  )
+                else
+                  const HugeIcon(
+                    icon: HugeIcons.strokeRoundedDeliveryTruck01,
+                    color: Color(0xff232F34),
+                    size: 25,
+                  ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: DropdownSearch<String>(
-                      enabled: enabled.value,
+                      enabled: enabled.value && !(isLoading?.value ?? false),
                       selectedItem: selectedItem?.value,
+                      dropdownButtonProps: DropdownButtonProps(
+                        icon: (isLoading?.value ?? false)
+                            ? Container(
+                                width: 18,
+                                height: 18,
+                                margin: const EdgeInsets.only(right: 8),
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xff232F34),
+                                ),
+                              )
+                            : const Icon(Icons.arrow_drop_down, color: Color(0xff232F34)),
+                      ),
                       popupProps:
                           PopupProps.menu(showSearchBox: showSearchBox ?? true),
                       items: list,
@@ -101,10 +126,11 @@ class QuickDocketDropdown extends StatelessWidget {
         this.image,
         this.height,
         this.boxDecoration,
-        this.onTap});
+        this.onTap,
+        this.isLoading});
 
   final RxString text;
-  String? label;
+  final String? label;
   final RxString? image;
   final RxString? selectedItem;
   final void Function(String?)? onChanged;
@@ -116,76 +142,89 @@ class QuickDocketDropdown extends StatelessWidget {
   final RxBool enabled;
   final RxDouble? height;
   final BoxDecoration? boxDecoration;
-
-  // Add an onTap callback
   final VoidCallback? onTap;
-
-  // Add this observable to track dropdown state
   final RxBool isDropdownOpened = false.obs;
+  final RxBool? isLoading;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      Widget content = GestureDetector(
+        onTap: () {
+          if (onTap != null) {
+            onTap!();
+          }
+          isDropdownOpened.value = !isDropdownOpened.value;
+        },
+        child: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: DropdownSearch<String>(
+            enabled: enabled.value && !(isLoading?.value ?? false),
+            selectedItem: selectedItem?.value,
+            dropdownButtonProps: DropdownButtonProps(
+              icon: (isLoading?.value ?? false)
+                  ? Container(
+                      width: 18,
+                      height: 18,
+                      margin: const EdgeInsets.only(right: 8),
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Color(0xff232F34),
+                      ),
+                    )
+                  : const Icon(
+                      Icons.arrow_drop_down,
+                      color: Color(0xff232F34),
+                    ),
+            ),
+            popupProps: PopupProps.menu(
+              showSearchBox: showSearchBox ?? true,
+            ),
+            items: list,
+            dropdownDecoratorProps: DropDownDecoratorProps(
+              dropdownSearchDecoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: text.value,
+                labelText: label ?? "",
+                hintStyle: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            onChanged: (value) {
+              selectedItem?.value = value ?? '';
+              if (onChanged != null) {
+                onChanged!(value);
+              }
+            },
+            dropdownBuilder: (context, selectedItem) {
+              return Text(
+                selectedItem ?? text.value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black, // Default style
+                ),
+              );
+            },
+            validator: validator,
+          ),
+        ),
+      );
+
       return Container(
         alignment: Alignment.center,
         decoration: boxDecoration ??
             BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Color(0xff232F34), width: 1),
+              border: Border.all(color: const Color(0xff232F34), width: 1),
               color: Colors.white,
             ),
-        child: Form(
-          key: globalKey,
-          child: GestureDetector(
-            onTap: () {
-              if (onTap != null) {
-                onTap!();
-              }
-              isDropdownOpened.value = !isDropdownOpened.value;
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: DropdownSearch<String>(
-                enabled: enabled.value,
-                selectedItem: selectedItem?.value,
-                popupProps: PopupProps.menu(
-                  showSearchBox: showSearchBox ?? true,
-                ),
-                items: list,
-                dropdownDecoratorProps: DropDownDecoratorProps(
-                  dropdownSearchDecoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: text.value,
-                    labelText: label ?? "",
-                    hintStyle:
-                    TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                onChanged: (value) {
-                  selectedItem?.value = value ?? '';
-                  if (onChanged != null) {
-                    onChanged!(value);
-                  }
-                },
-                dropdownBuilder: (context, selectedItem) {
-                  return Text(
-                    selectedItem ?? text.value,
-                    style:  TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black, // Default style
-                    ),
-                  );
-                },
-                validator: validator,
-              ),
-            ),
-          ),
-        ),
+        child: globalKey != null
+            ? Form(key: globalKey, child: content)
+            : content,
       );
     });
   }

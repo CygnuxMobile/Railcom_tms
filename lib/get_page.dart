@@ -7,8 +7,10 @@ import 'package:tms_newui/moduls/drs_page/drs_binding.dart';
 import 'package:tms_newui/moduls/drs_page/drs_list_screen.dart';
 import 'package:tms_newui/moduls/home_page/dash_board_screen.dart';
 import 'package:tms_newui/moduls/login_page/login_screen.dart';
-import 'package:tms_newui/moduls/prq_page/prq_binding.dart';
-import 'package:tms_newui/moduls/prq_page/prq_screen.dart';
+import 'package:tms_newui/moduls/drs_generate_page/drs_generate_binding.dart';
+import 'package:tms_newui/moduls/drs_generate_page/drs_generate_screen.dart';
+import 'package:tms_newui/moduls/prs_generate_page/prs_generate_binding.dart';
+import 'package:tms_newui/moduls/prs_generate_page/prs_generate_screen.dart';
 import 'package:tms_newui/moduls/qr_page/qr_scan_bindings.dart';
 import 'package:tms_newui/moduls/quick_docket_page/quick_docket_binding.dart';
 import 'package:tms_newui/moduls/quick_docket_page/quick_docket_screen.dart';
@@ -122,8 +124,13 @@ List<GetPage> getPages = [
     binding: QuickDocketBinding(),
   ),
   GetPage(
-    name: AppRoutes.prqScreen,
-    page: () => const PrqScreen(),
-    binding: PrqBinding(),
+    name: AppRoutes.drsGenerateScreen,
+    page: () => const DRSGenerateScreen(),
+    binding: DRSGenerateBinding(),
+  ),
+  GetPage(
+    name: AppRoutes.prsGenerateScreen,
+    page: () => const PRSGenerateScreen(),
+    binding: PRSGenerateBinding(),
   ),
 ];

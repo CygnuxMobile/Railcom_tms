@@ -171,6 +171,7 @@ class QuickDocketOptionScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
+                              Get.back();
                               _showQrScannerDialog(context); // Open QR code scanner
                             },
                             style: ElevatedButton.styleFrom(

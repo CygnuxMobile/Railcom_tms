@@ -23,6 +23,7 @@ import 'package:tms_newui/utils/pref.dart';
 import 'package:tms_newui/utils/tmsapp_api.dart';
 
 import '../../model/dash_board_model/location_master.dart';
+import '../../model/drs_model/general_master_response.dart';
 import '../../model/quick_docket_model/address.dart';
 import '../../model/quick_docket_model/city.dart';
 import '../../model/quick_docket_model/city_type.dart';
@@ -104,6 +105,26 @@ class QuickDocketController extends GetxController {
   RxList<AddressList> consigneeAddressList = <AddressList>[].obs;
   RxList<AddressList> consignorAddressList = <AddressList>[].obs;
 
+  List<String> consigneeTypeList = ["Railway", "Company", "Individual"];
+  RxString selectConsigneeType = "Railway".obs;
+
+  RxList<GeneralMasterList> designationList = <GeneralMasterList>[].obs;
+  RxList<GeneralMasterList> departmentList = <GeneralMasterList>[].obs;
+  RxList<GeneralMasterList> divisionList = <GeneralMasterList>[].obs;
+
+  RxString selectDesignation = 'Select Designation'.obs;
+  RxString selectDesignationId = ''.obs;
+  RxString selectDepartment = 'Select Department'.obs;
+  RxString selectDepartmentId = ''.obs;
+  RxString selectDivision = 'Select Division'.obs;
+  RxString selectDivisionId = ''.obs;
+
+  TextEditingController railwayAddressController = TextEditingController();
+  TextEditingController railwayMobileController = TextEditingController();
+
+  FocusNode railwayAddressFocus = FocusNode();
+  FocusNode railwayMobileFocus = FocusNode();
+
   late EwayBillResponse eWayBillResponse;
 
   void onInit() {
@@ -111,6 +132,9 @@ class QuickDocketController extends GetxController {
     consigneeApi();
     // transportModelApi();
     cityApi();
+    designationApi();
+    departmentApi();
+    divisionApi();
     super.onInit();
   }
 
@@ -120,14 +144,17 @@ class QuickDocketController extends GetxController {
       return "";
     }
 
-    // Parse the input date string in ISO 8601 format
+    try {
+      // Parse the input date string in ISO 8601 format
+      DateTime inputDate = DateTime.parse(date);
 
-    DateTime inputDate = DateTime.parse(date);
+      // Format the date to 'dd MMM yyyy'
+      String formattedDate = DateFormat("dd MMM yyyy").format(inputDate);
 
-    // Format the date to 'dd MMM yyyy'
-    String formattedDate = DateFormat("dd MMM yyyy").format(inputDate);
-
-    return formattedDate;
+      return formattedDate;
+    } catch (e) {
+      return date;
+    }
   }
 
   String originLocation =
@@ -191,6 +218,8 @@ class QuickDocketController extends GetxController {
     eWayBillNo.unfocus();
     noOfPKG.unfocus();
     declaredValue.unfocus();
+    railwayAddressFocus.unfocus();
+    railwayMobileFocus.unfocus();
   }
 
   ctrlClear() {
@@ -216,6 +245,25 @@ class QuickDocketController extends GetxController {
     docketNm = "";
     selectPackage = "";
     isEWBEmpty.value = true;
+    selectConsigneeType.value = "Railway";
+    selectConsignee.value = 'Select Consignee';
+    selectConsigneeId.value = '';
+    selectConsigneeAddress.value = 'Select Consignee Address';
+    consigneeAddressList.clear();
+    selectDesignation.value = 'Select Designation';
+    selectDesignationId.value = '';
+    selectDepartment.value = 'Select Department';
+    selectDepartmentId.value = '';
+    selectDivision.value = 'Select Division';
+    selectDivisionId.value = '';
+    railwayAddressController.clear();
+    railwayMobileController.clear();
+    fromCityController.clear();
+    selectFromPinCode.value = 'Select From Pincode';
+    selectToPinCode.value = 'Select To Pincode';
+    selectFromPinCodeId.value = '';
+    fromPinCodeList.clear();
+    toPinCodeList.clear();
   }
 
   eWayBillApi(
@@ -225,7 +273,6 @@ class QuickDocketController extends GetxController {
       required BuildContext context}) async {
     if (isQrScan == true) {
       Get.back();
-      // Get.back();
     }
 
     AppLoader().show();
@@ -234,12 +281,13 @@ class QuickDocketController extends GetxController {
       "lsno": eWayNumber,
     };
 
-    final response = await WebService.tmsPostRequest(
-      url: ApiService.eWayBill,
-      body: json.encode(data),
-    );
-    AppLoader().hide();
     try {
+      final response = await WebService.tmsPostRequest(
+        url: ApiService.eWayBill,
+        body: json.encode(data),
+      );
+      AppLoader().hide();
+
       if (response.statusCode == 200) {
         eWayBillResponse = ewayBillResponseFromJson(response.data);
         if (eWayBillResponse.data.status == 1) {
@@ -261,18 +309,40 @@ class QuickDocketController extends GetxController {
               toPincode = eWayBillResponse.data.toPincode;
               csgncd = eWayBillResponse.data.csgncd;
               fromCity = eWayBillResponse.data.fromCity;
+              fromCityController.text = eWayBillResponse.data.fromCity;
+              toCityController.text = eWayBillResponse.data.toCity;
+              if (eWayBillResponse.data.fromCity.isNotEmpty) {
+                fromPinCodeList.value = await pinCodeApi(eWayBillResponse.data.fromCity);
+              }
+              if (eWayBillResponse.data.toCity.isNotEmpty) {
+                toPinCodeList.value = await pinCodeApi(eWayBillResponse.data.toCity);
+              }
+              if (eWayBillResponse.data.pincode != 0) {
+                String fromPin = eWayBillResponse.data.pincode.toString();
+                selectFromPinCode.value = fromPin;
+                selectFromPinCodeId.value = fromPin;
+                if (fromPinCodeList.every((e) => e.text != fromPin)) {
+                  fromPinCodeList.add(PinCodeList(value: eWayBillResponse.data.pincode, text: fromPin));
+                }
+              }
+              if (eWayBillResponse.data.toPincode != 0) {
+                String toPin = eWayBillResponse.data.toPincode.toString();
+                selectToPinCode.value = toPin;
+                if (toPinCodeList.every((e) => e.text != toPin)) {
+                  toPinCodeList.add(PinCodeList(value: eWayBillResponse.data.toPincode, text: toPin));
+                }
+              }
               pinCode.value = eWayBillResponse.data.pincode.toString();
-              isValueMetrics.value = eWayBillResponse.data.volYn == "Y" ? true : false;
+              isValueMetrics.value = eWayBillResponse.data.volYn == "Y";
               isEWayNumber.value = false;
               isEWBEmpty.value = true;
               isInvoice.value = true;
               isDeclared.value = true;
-              isNumberOfPkg = true.obs;
-              isActualWeight = true.obs;
-              isHeight = true.obs;
-              isBreadth = true.obs;
-              isLength = true.obs;
-              isEWBEmpty = true.obs;
+              isNumberOfPkg.value = true;
+              isActualWeight.value = true;
+              isHeight.value = true;
+              isBreadth.value = true;
+              isLength.value = true;
               for (var data in payBasList) {
                 if (data.codeId == eWayBillResponse.data.paybas) {
                   billingType.value = data.codeDesc;
@@ -288,7 +358,6 @@ class QuickDocketController extends GetxController {
               selectTransportId.value = eWayBillResponse.data.transMode;
               consignorName.value = eWayBillResponse.data.partyName;
               consignorId = eWayBillResponse.data.partyCode;
-              pinCode.value = eWayBillResponse.data.toPincode.toString();
               eWayBillNoController.text = eWayBillResponse.data.ewaybillNo;
               invoiceNoController.text = eWayBillResponse.data.invno;
               declaredValueController.text = eWayBillResponse.data.decval.toString();
@@ -298,14 +367,14 @@ class QuickDocketController extends GetxController {
               eWayBillExpiredDate = eWayBillResponse.data.eWayBillExpiredDate;
               eWayBillInvoiceDate = eWayBillResponse.data.eWayBillInvoiceDate;
               declaredValueController.text = eWayBillResponse.data.decval.toString();
-              isNumberOfPkg = true.obs;
-              isActualWeight = true.obs;
-              isHeight = true.obs;
-              isBreadth = true.obs;
-              isLength = true.obs;
-              isEWBEmpty = true.obs;
-              isDeclared = true.obs;
-              isInvoice = true.obs;
+              isNumberOfPkg.value = true;
+              isActualWeight.value = true;
+              isHeight.value = true;
+              isBreadth.value = true;
+              isLength.value = true;
+              isEWBEmpty.value = true;
+              isDeclared.value = true;
+              isInvoice.value = true;
               docketDate.value = true;
             }
           } else {
@@ -315,12 +384,12 @@ class QuickDocketController extends GetxController {
               eWayBillExpiredDate = eWayBillResponse.data.eWayBillExpiredDate;
               eWayBillInvoiceDate = eWayBillResponse.data.eWayBillInvoiceDate;
               declaredValueController.text = eWayBillResponse.data.decval.toString();
-              isNumberOfPkg = true.obs;
-              isActualWeight = true.obs;
-              isHeight = true.obs;
-              isBreadth = true.obs;
-              isLength = true.obs;
-              isEWBEmpty = true.obs;
+              isNumberOfPkg.value = true;
+              isActualWeight.value = true;
+              isHeight.value = true;
+              isBreadth.value = true;
+              isLength.value = true;
+              isEWBEmpty.value = true;
               docketDate.value = true;
             } else {
               TmsToast.msg("EWayBill not match");
@@ -331,21 +400,24 @@ class QuickDocketController extends GetxController {
             Get.toNamed(AppRoutes.quickDocketScreen);
             custListApi(context: context);
           }
-          isProcessing = false;
         } else {
-          TmsToast.msg("Data not found");
-          isProcessing = false;
+          TmsToast.msg(eWayBillResponse.data.message.isNotEmpty
+              ? eWayBillResponse.data.message
+              : "Data not found");
           eWayBillNoController.clear();
         }
       } else {
         TmsToast.msg("Data not found");
-        isProcessing = false;
         eWayBillNoController.clear();
       }
-    } catch (error) {
+    } catch (error, stackTrace) {
+      AppLoader().hide();
+      print("eWayBillApi error: $error");
+      print("eWayBillApi stackTrace: $stackTrace");
       TmsToast.msg("Data not found");
-      isProcessing = false;
       eWayBillNoController.clear();
+    } finally {
+      isProcessing = false;
     }
   }
 
@@ -384,6 +456,66 @@ class QuickDocketController extends GetxController {
         CustListResponse custListResponse = custListResponseFromJson(response.data);
 
         consigneeList.value = custListResponse.custList;
+      } else {
+        if (kDebugMode) {
+          print(response.statusMessage);
+        }
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error.reactive);
+      }
+    }
+  }
+
+  Future<void> designationApi() async {
+    String url = "${ApiService.GeneralMasterData}?CodeType=CSTDESC";
+    try {
+      final dio.Response response = await WebService.tmsGetRequest(url);
+      if (response.statusCode == 200) {
+        GeneralMasterResponse generalMasterResponse =
+            generalMasterResponseFromJson(response.data);
+        designationList.value = generalMasterResponse.generalMasterList;
+      } else {
+        if (kDebugMode) {
+          print(response.statusMessage);
+        }
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error.reactive);
+      }
+    }
+  }
+
+  Future<void> departmentApi() async {
+    String url = "${ApiService.GeneralMasterData}?CodeType=DEPART";
+    try {
+      final dio.Response response = await WebService.tmsGetRequest(url);
+      if (response.statusCode == 200) {
+        GeneralMasterResponse generalMasterResponse =
+            generalMasterResponseFromJson(response.data);
+        departmentList.value = generalMasterResponse.generalMasterList;
+      } else {
+        if (kDebugMode) {
+          print(response.statusMessage);
+        }
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error.reactive);
+      }
+    }
+  }
+
+  Future<void> divisionApi() async {
+    String url = "${ApiService.GeneralMasterData}?CodeType=DIVISON";
+    try {
+      final dio.Response response = await WebService.tmsGetRequest(url);
+      if (response.statusCode == 200) {
+        GeneralMasterResponse generalMasterResponse =
+            generalMasterResponseFromJson(response.data);
+        divisionList.value = generalMasterResponse.generalMasterList;
       } else {
         if (kDebugMode) {
           print(response.statusMessage);
@@ -483,9 +615,9 @@ class QuickDocketController extends GetxController {
   }
 
   Future<void> custListApi({required BuildContext context}) async {
-    appLoader.show();
+    String paybasParam = billingId.value.isNotEmpty ? billingId.value : billingType.value;
     String url =
-        "${ApiService.baseUrl}V1/Master/GetCustomerList?Search=%&Location=${Pref().getBaseLocation()}&Paybas=$billingType";
+        "${ApiService.baseUrl}V1/Master/GetCustomerList?Search=%&Location=${Pref().getBaseLocation()}&Paybas=$paybasParam";
     print(url);
     try {
       final dio.Response response = await WebService.tmsGetRequest(url);
@@ -496,7 +628,6 @@ class QuickDocketController extends GetxController {
         CustListResponse custListResponse = custListResponseFromJson(response.data);
 
         customerList.value = custListResponse.custList;
-        appLoader.hide();
       } else {
         customerList.clear();
         log.e(jsonDecode(response.data), error: "Customer List Api ${response.statusMessage}");
@@ -504,10 +635,8 @@ class QuickDocketController extends GetxController {
         if (kDebugMode) {
           print(response.statusMessage);
         }
-        appLoader.hide();
       }
     } catch (error) {
-      appLoader.hide();
       customerList.clear();
       log.e(error, error: "Customer List Api Error");
       TmsToast.msg('No Data Found');
@@ -574,6 +703,22 @@ class QuickDocketController extends GetxController {
 
   ///Quick Docket Submit Request
   quickDocketApiRequest() {
+    String csgeCode = '';
+    String csgeName = '';
+    String csgeAddress = '';
+
+    if (selectConsigneeType.value.toLowerCase() == 'railway') {
+      csgeCode = selectDesignationId.value.isNotEmpty
+          ? selectDesignationId.value
+          : selectDepartmentId.value;
+      csgeName = selectDesignation.value;
+      csgeAddress = railwayAddressController.text;
+    } else {
+      csgeCode = selectConsigneeId.value;
+      csgeName = selectConsignee.value;
+      csgeAddress = selectConsigneeAddress.value;
+    }
+
     QuickDocketSubmit quickDocketSubmitRequest = QuickDocketSubmit(
       dockdt: docketDateController.text,
       partYCode: consignorId,
@@ -586,21 +731,37 @@ class QuickDocketController extends GetxController {
       toCity: toCityController.text,
       transPortModel: selectTransportId.value,
       dockno: docketNoController.text,
-      pincode: "",
+      pincode: selectFromPinCode.value != 'Select From Pincode' ? selectFromPinCode.value : "",
       baseUserName: Pref().getUserId(),
       volYn: isValueMetrics.isTrue ? "Y" : "N",
-      csgeAdd: selectConsigneeAddress.value,
-      csgecd: selectConsigneeId.value,
-      csgenm: selectConsignee.value,
+      csgeAdd: csgeAddress,
+      csgecd: csgeCode,
+      csgenm: csgeName,
       csgnAdd: selectConsignorAddress.value,
       csgncd: consignorId,
       csgnm: consignorName.value,
       fromCity: fromCityController.text,
-      toPincode: selectToPinCode.value,
+      toPincode: selectToPinCode.value != 'Select To Pincode' ? selectToPinCode.value : "",
       csgeCity: toCityController.text,
-      csgePincode: selectFromPinCodeId.value,
+      csgePincode: selectToPinCode.value != 'Select To Pincode' ? selectToPinCode.value : "",
       csgnCity: fromCityController.text,
-      csgnPincode: selectToPinCode.value,
+      csgnPincode: selectFromPinCode.value != 'Select From Pincode' ? selectFromPinCode.value : "",
+      railwayDesignation: selectConsigneeType.value.toLowerCase() == 'railway'
+          ? selectDesignationId.value
+          : "",
+      railwayDepartment: selectConsigneeType.value.toLowerCase() == 'railway'
+          ? selectDepartmentId.value
+          : "",
+      railwayDivison: selectConsigneeType.value.toLowerCase() == 'railway'
+          ? selectDivisionId.value
+          : "",
+      railwayAddr: selectConsigneeType.value.toLowerCase() == 'railway'
+          ? railwayAddressController.text
+          : "",
+      railwayMobile: selectConsigneeType.value.toLowerCase() == 'railway'
+          ? railwayMobileController.text
+          : "",
+      rcitype: selectConsigneeType.value,
       docketInvoiceList: docketInvoiceList,
     );
     return quickDocketSubmitRequest;
@@ -659,6 +820,8 @@ class QuickDocketController extends GetxController {
     required GlobalKey<FormState> transportModelFromKey,
     required GlobalKey<FormState> fromCityFromKey,
     required GlobalKey<FormState> toCityFromKey,
+    required GlobalKey<FormState> fromPinCodeFromKey,
+    required GlobalKey<FormState> toPinCodeFromKey,
     required GlobalKey<FormState> invoiceNoFromKey,
     required GlobalKey<FormState> numberPkgFromKey,
     required GlobalKey<FormState> docketDateFromKey,
@@ -666,57 +829,102 @@ class QuickDocketController extends GetxController {
     required GlobalKey<FormState> actualWeightFromKey,
     required GlobalKey<FormState> chargeWeightFromKey,
     required GlobalKey<FormState> consigneeFromKey,
+    required GlobalKey<FormState> consigneeAddressFromKey,
+    required GlobalKey<FormState> consigneeTypeFromKey,
+    required GlobalKey<FormState> designationFromKey,
+    required GlobalKey<FormState> departmentFromKey,
+    required GlobalKey<FormState> railwayAddressFromKey,
+    required GlobalKey<FormState> divisionFromKey,
+    required GlobalKey<FormState> railwayMobileFromKey,
   }) {
-    if ((eWayBillStatus.value == eWayBill.withoutEWayBill)
-        ? (billingTypeFromKey.currentState!.validate() &&
-            billingPartyFromKey.currentState!.validate())
-        : true) {
-      if (billingTypeFromKey.currentState!.validate() &&
-              billingPartyFromKey.currentState!.validate() &&
-              transportMode.isTrue
-          ? (transportModelFromKey.currentState!.validate())
-          : consigneeFromKey.currentState!.validate() &&
-              fromCityFromKey.currentState!.validate() &&
-              toCityFromKey.currentState!.validate() &&
-              invoiceNoFromKey.currentState!.validate() &&
-              numberPkgFromKey.currentState!.validate() &&
-              declaredValueFromKey.currentState!.validate() &&
-              actualWeightFromKey.currentState!.validate() &&
-              chargeWeightFromKey.currentState!.validate()) {
-        docketInvoiceList.add(
-          DocketInvoiceList(
-            invno: invoiceNoController.text,
-            prodcd: "",
-            pkgsty: "",
-            pkgs: parseInputToInt(noOfPackageController.text),
-            decval: parseInputToDouble(declaredValueController.text),
-            actuwt: parseInputToDouble(actualWeightController.text),
-            chrgwt: parseInputToDouble(chargeWeightController.text),
-            ewbno: eWayBillNoController.text,
-            voLL: 0.0,
-            voLB: 0.0,
-            voLH: 0.0,
-            eWayBillExpiredDate: eWayBillExpiredDate.isEmpty ? null : eWayBillExpiredDate,
-            eWayBillInvoiceDate: eWayBillInvoiceDate.isEmpty ? null : eWayBillInvoiceDate,
-            image: base64Images.isNotEmpty ? base64Images[0] : "",
-          ),
-        );
+    bool isBillingValid = (eWayBillStatus.value == eWayBill.withoutEWayBill)
+        ? ((billingTypeFromKey.currentState?.validate() ?? false) &&
+            (billingPartyFromKey.currentState?.validate() ?? false))
+        : true;
 
-        isEWayNumber.value = true;
-        isDeclared.value = true;
-        isInvoice.value = true;
-        invoiceNoController.clear();
-        noOfPackageController.clear();
+    bool isTransportValid =
+        transportMode.isTrue ? (transportModelFromKey.currentState?.validate() ?? false) : true;
 
-        declaredValueController.clear();
+    bool isConsigneeTypeValid = consigneeTypeFromKey.currentState?.validate() ?? false;
 
-        actualWeightController.clear();
+    bool isConsigneeValid = false;
+    if (selectConsigneeType.value.toLowerCase() == 'railway') {
+      bool isDesig = designationFromKey.currentState?.validate() ?? false;
+      bool isDept = departmentFromKey.currentState?.validate() ?? false;
+      bool isAddr = railwayAddressFromKey.currentState?.validate() ?? false;
+      bool isDiv = divisionFromKey.currentState?.validate() ?? false;
+      bool isMob = railwayMobileFromKey.currentState?.validate() ?? false;
+      isConsigneeValid = isDesig && isDept && isAddr && isDiv && isMob;
+    } else {
+      bool isCsg = consigneeFromKey.currentState?.validate() ?? false;
+      bool isCsgAdd = consigneeAddressFromKey.currentState?.validate() ?? false;
+      isConsigneeValid = isCsg && isCsgAdd;
+    }
 
-        actualWeightController.clear();
-        chargeWeightController.clear();
-        eWayBillNoController.clear();
-        quickDocketSubmitApi(context: Get.context!);
-      }
+    bool isFromCityValid = fromCityFromKey.currentState?.validate() ?? false;
+    bool isToCityValid = toCityFromKey.currentState?.validate() ?? false;
+    bool isFromPinCodeValid = (fromPinCodeFromKey.currentState?.validate() ?? false) &&
+        selectFromPinCode.value.isNotEmpty &&
+        selectFromPinCode.value != 'Select From Pincode';
+    bool isToPinCodeValid = (toPinCodeFromKey.currentState?.validate() ?? false) &&
+        selectToPinCode.value.isNotEmpty &&
+        selectToPinCode.value != 'Select To Pincode';
+    bool isInvoiceValid = invoiceNoFromKey.currentState?.validate() ?? false;
+    bool isPkgValid = numberPkgFromKey.currentState?.validate() ?? false;
+    bool isDeclaredValid = declaredValueFromKey.currentState?.validate() ?? false;
+    bool isActualWeightValid = actualWeightFromKey.currentState?.validate() ?? false;
+    bool isChargeWeightValid = chargeWeightFromKey.currentState?.validate() ?? false;
+
+    if (!isFromPinCodeValid && isFromCityValid) {
+      TmsToast.msg('Please select From Pincode');
+    } else if (!isToPinCodeValid && isToCityValid) {
+      TmsToast.msg('Please select To Pincode');
+    }
+
+    bool isOtherValid = isFromCityValid &&
+        isToCityValid &&
+        isFromPinCodeValid &&
+        isToPinCodeValid &&
+        isInvoiceValid &&
+        isPkgValid &&
+        isDeclaredValid &&
+        isActualWeightValid &&
+        isChargeWeightValid;
+
+    if (isBillingValid && isTransportValid && isConsigneeTypeValid && isConsigneeValid && isOtherValid) {
+      docketInvoiceList.add(
+        DocketInvoiceList(
+          invno: invoiceNoController.text,
+          prodcd: "",
+          pkgsty: "",
+          pkgs: parseInputToInt(noOfPackageController.text),
+          decval: parseInputToDouble(declaredValueController.text),
+          actuwt: parseInputToDouble(actualWeightController.text),
+          chrgwt: parseInputToDouble(chargeWeightController.text),
+          ewbno: eWayBillNoController.text,
+          voLL: 0.0,
+          voLB: 0.0,
+          voLH: 0.0,
+          toTCFT: 0.0,
+          eWayBillExpiredDate: eWayBillExpiredDate.isEmpty ? null : eWayBillExpiredDate,
+          eWayBillInvoiceDate: eWayBillInvoiceDate.isEmpty ? null : eWayBillInvoiceDate,
+          image: base64Images.isNotEmpty ? base64Images[0] : "",
+        ),
+      );
+
+      isEWayNumber.value = true;
+      isDeclared.value = true;
+      isInvoice.value = true;
+      invoiceNoController.clear();
+      noOfPackageController.clear();
+
+      declaredValueController.clear();
+
+      actualWeightController.clear();
+
+      chargeWeightController.clear();
+      eWayBillNoController.clear();
+      quickDocketSubmitApi(context: Get.context!);
     }
   }
 }

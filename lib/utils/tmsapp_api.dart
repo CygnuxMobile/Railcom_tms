@@ -38,4 +38,17 @@ class ApiService {
   static String menuAccessDetailsApi = '${baseUrl}V1/Authenticate/MenuAccessDetails';
   static String GetListForPRSDRS = '${baseUrl}V1/Operation/GetListForPRSDRS';
   static String Consignee = '${baseUrl}V1/Master/GetCustList?Search=%25%25%25';
+  static String getVendorType = '${baseUrl}V1/Operation/GetVendorType';
+  static String getVendorsFromVendorType = '${baseUrl}V1/Operation/GetVendorsFromVendorType';
+  static String getVehicleFromVendor = '${baseUrl}V1/Operation/GetVehicleFromVendor';
+  static String getVehicleDetails = '${baseUrl}V1/Operation/GetVehicleDetails';
+  static String getDriverList = '${baseUrl}V1/Operation/GetDriverList';
+  static String getDriverDetails = '${baseUrl}V1/Operation/GetDriverDetails';
+  static String getDeliveryAgent = '${baseUrl}V1/Operation/GetDeliveryAgent';
+  static String getCrossingAgent = '${baseUrl}V1/Operation/GetCrossingAgent';
+  static String avalabledocketinPRSDRS = '${baseUrl}V1/Operation/AvalabledocketinPRSDRS';
+  static String prepareDRS = '${baseUrl}V1/Operation/PRSDRSSubmitAPI';
+  static String preparePRS = '${baseUrl}V1/Operation/PRSDRSSubmitAPI';
+  static String updatePartB = '${baseUrl}V1/Operation/UpdatePartBAPP';
+  static String generateConsolidatedEWayBills = '${baseUrl}V1/Operation/GenerateConsolidatedEWayBills';
 }

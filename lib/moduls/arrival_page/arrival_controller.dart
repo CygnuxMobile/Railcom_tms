@@ -21,6 +21,7 @@ class ArrivalController extends GetxController {
   TextEditingController closingKMCtrl = TextEditingController(); //ArrivalsTODAte
   TextEditingController incomingRemarkCtrl = TextEditingController(); //ArrivalsTODAte
   RxList<ThcData> thcArrivalsData = <ThcData>[].obs;
+  Rx<DataStatus> dataStatus = DataStatus.loading.obs;
 
   int? closingKM;
 
@@ -58,13 +59,19 @@ class ArrivalController extends GetxController {
 
   ///Get ThcArrival Data
   Future<void> getThcArrivalsData() async {
-    Rx<DataStatus> dataStatus = DataStatus.loading.obs;
+    dataStatus.value = DataStatus.loading;
     try {
       ThcArrivalsListData? thcArrivalsListData = await thcArrivalsPost();
-      thcArrivalsData(thcArrivalsListData!.data);
-      dataStatus(DataStatus.completed);
+      if (thcArrivalsListData != null) {
+        thcArrivalsData.value = thcArrivalsListData.data;
+        dataStatus.value = DataStatus.completed;
+      } else {
+        thcArrivalsData.clear();
+        dataStatus.value = DataStatus.completed;
+      }
     } catch (err) {
-      dataStatus(DataStatus.error);
+      print("Error fetching THC arrivals data: $err");
+      dataStatus.value = DataStatus.error;
     }
   }
 

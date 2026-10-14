@@ -224,8 +224,14 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
   final GlobalKey<FormState> docketDateFromKey = GlobalKey<FormState>();
 
   final GlobalKey<FormState> transportModelFromKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> consigneeTypeFromKey = GlobalKey<FormState>();
   final GlobalKey<FormState> consigneeFromKey = GlobalKey<FormState>();
   final GlobalKey<FormState> consigneeAddressFromKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> designationFromKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> departmentFromKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> railwayAddressFromKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> divisionFromKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> railwayMobileFromKey = GlobalKey<FormState>();
   final GlobalKey<FormState> consignorAddressFromKey = GlobalKey<FormState>();
   final GlobalKey<FormState> fromPinCodeFromKey = GlobalKey<FormState>();
   final GlobalKey<FormState> toPinCodeFromKey = GlobalKey<FormState>();
@@ -452,6 +458,8 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
                             .toList(),
                         onChanged: (value) async {
                           quickDocketController.fromCityController.text = value!;
+                          quickDocketController.selectFromPinCode.value = 'Select From Pincode';
+                          quickDocketController.selectFromPinCodeId.value = '';
                           quickDocketController.fromPinCodeList.value =
                               await quickDocketController.pinCodeApi(value);
                           quickDocketController.consignorAddressList.value =
@@ -479,6 +487,7 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
                             .toList(),
                         onChanged: (value) async {
                           quickDocketController.toCityController.text = value!;
+                          quickDocketController.selectToPinCode.value = 'Select To Pincode';
                           quickDocketController.toPinCodeList.value =
                               await quickDocketController.pinCodeApi(value);
                         },
@@ -547,73 +556,300 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
                         ),
                       ),
                       _sizedBox12,
-                      Obx(
-                        () => InkWell(
-                          onTap: () {
+                      InkWell(
+                        onTap: () {
+                          quickDocketController.textFocus();
+                        },
+                        child: QuickDocketDropdown(
+                          enabled: true.obs,
+                          height: 30.0.obs,
+                          isSize: false,
+                          text: quickDocketController.selectConsigneeType,
+                          label: "Consignee Type",
+                          list: quickDocketController.consigneeTypeList,
+                          onChanged: (value) async {
+                            quickDocketController.selectConsigneeType.value = value!;
                             quickDocketController.textFocus();
                           },
-                          child: QuickDocketDropdown(
-                            enabled: true.obs,
-                            height: 30.0.obs,
-                            isSize: false,
-                            text: quickDocketController.selectConsignee,
-                            label: "Consignee",
-                            list: quickDocketController.consigneeList
-                                .map((element) => element.custnm)
-                                .toList(),
-                            onChanged: (value) async {
-                              quickDocketController.selectConsignee.value = value!;
+                          globalKey: consigneeTypeFromKey,
+                          validator: (value) {
+                            if (value == null || value == '') {
+                              return 'Please Select Consignee Type';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      Obx(() {
+                        if (quickDocketController.selectConsigneeType.value.toLowerCase() ==
+                            'railway') {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _sizedBox12,
+                              InkWell(
+                                onTap: () {
+                                  quickDocketController.textFocus();
+                                },
+                                child: QuickDocketDropdown(
+                                  enabled: true.obs,
+                                  height: 30.0.obs,
+                                  isSize: false,
+                                  text: quickDocketController.selectDesignation,
+                                  label: "Designation",
+                                  list: quickDocketController.designationList
+                                      .map((element) => element.codeDesc)
+                                      .toList(),
+                                  onChanged: (value) async {
+                                    quickDocketController.selectDesignation.value = value!;
+                                    quickDocketController.textFocus();
+                                    for (var data in quickDocketController.designationList) {
+                                      if (data.codeDesc == value) {
+                                        quickDocketController.selectDesignationId.value =
+                                            data.codeId;
+                                      }
+                                    }
+                                  },
+                                  globalKey: designationFromKey,
+                                  validator: (value) {
+                                    if (value == null ||
+                                        value == '' ||
+                                        value == 'Select Designation') {
+                                      return 'Please Select Designation';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              _sizedBox12,
+                              InkWell(
+                                onTap: () {
+                                  quickDocketController.textFocus();
+                                },
+                                child: QuickDocketDropdown(
+                                  enabled: true.obs,
+                                  height: 30.0.obs,
+                                  isSize: false,
+                                  text: quickDocketController.selectDepartment,
+                                  label: "Department",
+                                  list: quickDocketController.departmentList
+                                      .map((element) => element.codeDesc)
+                                      .toList(),
+                                  onChanged: (value) async {
+                                    quickDocketController.selectDepartment.value = value!;
+                                    quickDocketController.textFocus();
+                                    for (var data in quickDocketController.departmentList) {
+                                      if (data.codeDesc == value) {
+                                        quickDocketController.selectDepartmentId.value =
+                                            data.codeId;
+                                      }
+                                    }
+                                  },
+                                  globalKey: departmentFromKey,
+                                  validator: (value) {
+                                    if (value == null ||
+                                        value == '' ||
+                                        value == 'Select Department') {
+                                      return 'Please Select Department';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              _sizedBox12,
+                              Form(
+                                key: railwayAddressFromKey,
+                                child: TextFormField(
+                                  focusNode: quickDocketController.railwayAddressFocus,
+                                  controller: quickDocketController.railwayAddressController,
+                                  style: GoogleFonts.urbanist(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  decoration: InputDecoration(
+                                    labelText: 'Address',
+                                    labelStyle: GoogleFonts.urbanist(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(
+                                        color: Color(0xff232F34),
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 15, horizontal: 10),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'Please enter Address';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              _sizedBox12,
+                              InkWell(
+                                onTap: () {
+                                  quickDocketController.textFocus();
+                                },
+                                child: QuickDocketDropdown(
+                                  enabled: true.obs,
+                                  height: 30.0.obs,
+                                  isSize: false,
+                                  text: quickDocketController.selectDivision,
+                                  label: "Division",
+                                  list: quickDocketController.divisionList
+                                      .map((element) => element.codeDesc)
+                                      .toList(),
+                                  onChanged: (value) async {
+                                    quickDocketController.selectDivision.value = value!;
+                                    quickDocketController.textFocus();
+                                    for (var data in quickDocketController.divisionList) {
+                                      if (data.codeDesc == value) {
+                                        quickDocketController.selectDivisionId.value =
+                                            data.codeId;
+                                      }
+                                    }
+                                  },
+                                  globalKey: divisionFromKey,
+                                  validator: (value) {
+                                    if (value == null ||
+                                        value == '' ||
+                                        value == 'Select Division') {
+                                      return 'Please Select Division';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              _sizedBox12,
+                              Form(
+                                key: railwayMobileFromKey,
+                                child: TextFormField(
+                                  focusNode: quickDocketController.railwayMobileFocus,
+                                  controller: quickDocketController.railwayMobileController,
+                                  keyboardType: TextInputType.phone,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(10),
+                                  ],
+                                  style: GoogleFonts.urbanist(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  decoration: InputDecoration(
+                                    labelText: 'Mobile No',
+                                    labelStyle: GoogleFonts.urbanist(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(
+                                        color: Color(0xff232F34),
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 15, horizontal: 10),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'Please enter Mobile No';
+                                    }
+                                    if (value.trim().length != 10) {
+                                      return 'Please enter valid 10-digit Mobile No';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _sizedBox12,
+                              InkWell(
+                                onTap: () {
+                                  quickDocketController.textFocus();
+                                },
+                                child: QuickDocketDropdown(
+                                  enabled: true.obs,
+                                  height: 30.0.obs,
+                                  isSize: false,
+                                  text: quickDocketController.selectConsignee,
+                                  label: "Consignee",
+                                  list: quickDocketController.consigneeList
+                                      .map((element) => element.custnm)
+                                      .toList(),
+                                  onChanged: (value) async {
+                                    quickDocketController.selectConsignee.value = value!;
 
-                              quickDocketController.textFocus();
-                              for (var data in quickDocketController.consigneeList) {
-                                if (data.custnm == value) {
-                                  quickDocketController.selectConsigneeId.value = data.custcd;
-                                  quickDocketController.consigneeAddressList.value =
-                                      await quickDocketController.AddressApi(
-                                          id: data.custcd,
-                                          city: quickDocketController.toCityController.text);
-                                }
-                              }
-                            },
-                            globalKey: consigneeFromKey,
-                            validator: (value) {
-                              if (value == null || value == '') {
-                                return 'Please Select Consignee ';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ),
-                      _sizedBox12,
-                      Obx(
-                        () => InkWell(
-                          onTap: () {
-                            quickDocketController.textFocus();
-                          },
-                          child: QuickDocketDropdown(
-                            enabled: true.obs,
-                            height: 30.0.obs,
-                            isSize: false,
-                            text: quickDocketController.selectConsigneeAddress,
-                            label: "Consignee Address",
-                            list: quickDocketController.consigneeAddressList
-                                .map((element) => element.address)
-                                .toList(),
-                            onChanged: (value) async {
-                              quickDocketController.selectConsigneeAddress.value = value!;
-                              quickDocketController.textFocus();
-                            },
-                            globalKey: consigneeAddressFromKey,
-                            validator: (value) {
-                              if (value == null || value == '') {
-                                return 'Please Select Consignee Address';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ),
+                                    quickDocketController.textFocus();
+                                    for (var data in quickDocketController.consigneeList) {
+                                      if (data.custnm == value) {
+                                        quickDocketController.selectConsigneeId.value =
+                                            data.custcd;
+                                        quickDocketController.consigneeAddressList.value =
+                                            await quickDocketController.AddressApi(
+                                                id: data.custcd,
+                                                city: quickDocketController
+                                                    .toCityController.text);
+                                      }
+                                    }
+                                  },
+                                  globalKey: consigneeFromKey,
+                                  validator: (value) {
+                                    if (value == null || value == '' || value == 'Select Consignee') {
+                                      return 'Please Select Consignee ';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              _sizedBox12,
+                              InkWell(
+                                onTap: () {
+                                  quickDocketController.textFocus();
+                                },
+                                child: QuickDocketDropdown(
+                                  enabled: true.obs,
+                                  height: 30.0.obs,
+                                  isSize: false,
+                                  text: quickDocketController.selectConsigneeAddress,
+                                  label: "Consignee Address",
+                                  list: quickDocketController.consigneeAddressList
+                                      .map((element) => element.address)
+                                      .toList(),
+                                  onChanged: (value) async {
+                                    quickDocketController.selectConsigneeAddress.value =
+                                        value!;
+                                    quickDocketController.textFocus();
+                                  },
+                                  globalKey: consigneeAddressFromKey,
+                                  validator: (value) {
+                                    if (value == null ||
+                                        value == '' ||
+                                        value == 'Select Consignee Address') {
+                                      return 'Please Select Consignee Address';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                      }),
                       _sizedBox12,
                       Obx(
                         () => InkWell(
@@ -665,6 +901,10 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
                             list: quickDocketController.fromPinCodeList
                                 .map((element) => element.text)
                                 .toList(),
+                            selectedItem: (quickDocketController.selectFromPinCode.value.isEmpty ||
+                                    quickDocketController.selectFromPinCode.value == 'Select From Pincode')
+                                ? null
+                                : quickDocketController.selectFromPinCode,
                             onChanged: (value) async {
                               quickDocketController.selectFromPinCode.value = value!;
                               quickDocketController.textFocus();
@@ -677,8 +917,12 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
                             },
                             globalKey: fromPinCodeFromKey,
                             validator: (value) {
-                              if (value == null || value == '') {
-                                return 'Please Select From Pincode ';
+                              if (value == null ||
+                                  value.trim().isEmpty ||
+                                  value == 'Select From Pincode' ||
+                                  quickDocketController.selectFromPinCode.value == 'Select From Pincode' ||
+                                  quickDocketController.selectFromPinCode.value.isEmpty) {
+                                return 'Please Select From Pincode';
                               }
                               return null;
                             },
@@ -700,6 +944,10 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
                             list: quickDocketController.toPinCodeList
                                 .map((element) => element.text)
                                 .toList(),
+                            selectedItem: (quickDocketController.selectToPinCode.value.isEmpty ||
+                                    quickDocketController.selectToPinCode.value == 'Select To Pincode')
+                                ? null
+                                : quickDocketController.selectToPinCode,
                             onChanged: (value) async {
                               quickDocketController.selectToPinCode.value = value!;
                               quickDocketController.textFocus();
@@ -712,8 +960,12 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
                             },
                             globalKey: toPinCodeFromKey,
                             validator: (value) {
-                              if (value == null || value == '') {
-                                return 'Please Select To Pincode ';
+                              if (value == null ||
+                                  value.trim().isEmpty ||
+                                  value == 'Select To Pincode' ||
+                                  quickDocketController.selectToPinCode.value == 'Select To Pincode' ||
+                                  quickDocketController.selectToPinCode.value.isEmpty) {
+                                return 'Please Select To Pincode';
                               }
                               return null;
                             },
@@ -1144,6 +1396,7 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
                                   voLL: 0.0,
                                   voLB: 0.0,
                                   voLH: 0.0,
+                                  toTCFT: 0.0,
                                   eWayBillExpiredDate: quickDocketController.eWayBillExpiredDate,
                                   eWayBillInvoiceDate: quickDocketController.eWayBillInvoiceDate,
                                   image: quickDocketController.base64Images.isNotEmpty
@@ -1179,9 +1432,18 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
                                 billingTypeFromKey: billingTypeFromKey,
                                 billingPartyFromKey: billingPartyFromKey,
                                 consigneeFromKey: consigneeFromKey,
+                                consigneeAddressFromKey: consigneeAddressFromKey,
+                                consigneeTypeFromKey: consigneeTypeFromKey,
+                                designationFromKey: designationFromKey,
+                                departmentFromKey: departmentFromKey,
+                                railwayAddressFromKey: railwayAddressFromKey,
+                                divisionFromKey: divisionFromKey,
+                                railwayMobileFromKey: railwayMobileFromKey,
                                 transportModelFromKey: transportModelFromKey,
                                 fromCityFromKey: fromCityFromKey,
                                 toCityFromKey: toCityFromKey,
+                                fromPinCodeFromKey: fromPinCodeFromKey,
+                                toPinCodeFromKey: toPinCodeFromKey,
                                 invoiceNoFromKey: invoiceNoFromKey,
                                 numberPkgFromKey: numberPkgFromKey,
                                 declaredValueFromKey: declaredValueFromKey,
@@ -1347,7 +1609,7 @@ class _QuickDocketScreenState extends State<QuickDocketScreen> {
                             quickDocketController.eWayBillApi(
                                 eWayNumber: qrCode,
                                 isQrScan: true,
-                                isMenuScreen: true,
+                                isMenuScreen: false,
                                 context: context);
                           }
                         }

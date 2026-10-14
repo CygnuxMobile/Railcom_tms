@@ -19,20 +19,15 @@ abstract class AppEnvironments {
         version = 'v 09.25.25';
         dashBordList = [
           'quickDocket',
-          // 'gcn',
-          // "webView",
-          // 'manifest',
-          // "manifestWithoutScening",
-          // "thcWithoutScening",
-          // "stockUpdateWithoutScening",
-          // "arrivalWithoutScening",
-          // "thc",
-          'arrival',
-          'stockUpdate',
+          'gcn',
           'pod',
+          'prsGenerate',
+          'drsGenerate',
+          // 'arrival',
+          // 'stockUpdate',
           // 'unloadingSheet',
           // 'attendance',
-          'tracking',
+          // 'tracking',
           // 'drs',
           // 'prq'
         ];
